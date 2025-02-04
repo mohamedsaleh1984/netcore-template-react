@@ -4,9 +4,14 @@ using System.Text;
 namespace AuthWebApi.Extensions;
 public static class JwtExtension
 {
-    public static void AddJwtExtension(this IServiceCollection serCollection, WebApplicationBuilder builder)
+    public static void AddJwtExtension(this IServiceCollection serCollection)
     {
-        var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+        var jwtSettings = configuration.GetSection("JwtSettings");
         string jwtKey = jwtSettings["Key"] ?? "";
         if (string.IsNullOrEmpty(jwtKey))
             throw new Exception("JWT Key is not found in appsettings.json");
