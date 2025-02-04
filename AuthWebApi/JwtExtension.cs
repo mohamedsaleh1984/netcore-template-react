@@ -1,10 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-
 namespace AuthWebApi.Extensions;
-
-
 public static class JwtExtension
 {
     public static void AddJwtExtension(this IServiceCollection serCollection, WebApplicationBuilder builder)

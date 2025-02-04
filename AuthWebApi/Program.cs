@@ -3,14 +3,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 using AuthWebApi.Extensions;
+using AuthWebApi;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddHttpLogging(o =>
-{
-
-
-});
 
 builder.Logging.AddConsole();
 builder.Services.AddJwtExtension(builder);
@@ -19,7 +14,7 @@ builder.Services.AddJwtExtension(builder);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwager();
 builder.Services.AddAuthorization();
 var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(options =>
@@ -38,8 +33,7 @@ app.UseHttpLogging();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseNSwag();
 }
 else
 {
