@@ -43,15 +43,15 @@ msbuild.err
 msbuild.wrn
 
 # dependencies
-/node_modules
+/jwt-react-app/node_modules
 /.pnp
 .pnp.js
 
 # testing
-/coverage
+/jwt-react-app/coverage
 
 # production
-/build
+/jwt-react-app/build
 
 # misc
 .DS_Store
