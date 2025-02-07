@@ -10,6 +10,7 @@ const Dashboard: React.FC = () => {
 
     const handleLogout = async () => {
         try {
+            TokenUtil.Inspect("handleLogout", "route...")
             // some logic
             TokenUtil.removeAccessToken();
             TokenUtil.removeRefreshToken();
@@ -27,7 +28,7 @@ const Dashboard: React.FC = () => {
             const { accessToken, refreshToken } = response;
             TokenUtil.setAccessToken(accessToken);
             TokenUtil.setRefreshToken(refreshToken.token);
-
+            TokenUtil.Inspect("refreshAccessToken", [accessToken, accessToken])
             return TokenUtil.getAccessToken();
         } catch (error) {
             console.error('Failed to refresh token', error);
@@ -40,16 +41,19 @@ const Dashboard: React.FC = () => {
 
     const validateToken = (token: string) => {
         try {
-
             // Decode the token
             const decodedToken: any = jwtDecode(token);
+            TokenUtil.Inspect('validateToken', decodedToken)
 
             // Check if the token is expired
             const currentTime = Date.now() / 1000; // Convert to seconds
+
             if (decodedToken.exp < currentTime) {
+                TokenUtil.Inspect('validateToken', "Token has expired.")
                 return { isValid: false, error: "Token has expired." };
             }
 
+            TokenUtil.Inspect('validateToken', "Token is not expired.")
             // If the token is valid, return the decoded payload
             return { isValid: true, decodedToken };
         } catch (error) {
@@ -62,7 +66,8 @@ const Dashboard: React.FC = () => {
             const response = await Client.protected_Get();
             setData(response);
         } catch (error: any) {
-            console.log("WHATS UP")
+            TokenUtil.Inspect("fetchData", "Failed to fetchData");
+
             if (error.response && error.response.status === 401) {
                 // Token expired, try refreshing
                 const newAccessToken = await refreshAccessToken();
@@ -78,6 +83,7 @@ const Dashboard: React.FC = () => {
     };
 
     const logic = async () => {
+
         // check if there is access token or not
         const accessToken = TokenUtil.getAccessToken();
         if (!accessToken) {
@@ -85,12 +91,17 @@ const Dashboard: React.FC = () => {
             return;
         }
 
+        TokenUtil.Inspect("logic", accessToken);
+
         const valToken = validateToken(accessToken);
         if (!valToken.isValid) {
             const accessToken = await refreshAccessToken();
             if (accessToken) {
                 await fetchData();
             }
+        } else {
+            TokenUtil.Inspect("logic", "Access Token is valid");
+            await fetchData();
         }
 
 
