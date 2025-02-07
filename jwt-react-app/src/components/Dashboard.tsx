@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import * as TokenUtil from "../Utils"
 import { Client } from 'src/api/Client';
 import { RefreshTokenRequest } from 'src/api/ApiClient';
