@@ -1,10 +1,10 @@
 using AuthWebApi.Extensions;
-using AuthWebApi;
-using Microsoft.Extensions.DependencyInjection;
+using AuthWebApi.Helper;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpLogging(x => { }); 
 builder.Services.AddControllers();
+builder.Services.AddSingleton<TokenHelper>();
 builder.Logging.AddConsole();
 builder.Services.AddJwtExtension();
 builder.Services.AddSwager();

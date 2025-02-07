@@ -1,4 +1,4 @@
-﻿namespace AuthWebApi
+﻿namespace AuthWebApi.Extensions
 {
     public static class CorsExtension
     {

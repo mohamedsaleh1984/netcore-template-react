@@ -1,4 +1,4 @@
-namespace AuthWebApi;
+namespace AuthWebApi.Models;
 
 public class WeatherForecast
 {

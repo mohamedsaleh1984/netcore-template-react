@@ -9,7 +9,7 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace AuthWebApi
+namespace AuthWebApi.Extensions
 {
     public static class NSwagInteExtensions
     {
