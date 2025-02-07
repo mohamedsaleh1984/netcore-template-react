@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './Login';
-import Dashboard from './Dashboard';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
 import ProtectedRoute from './ProtectedRoute';
 
 const App: React.FC = () => {

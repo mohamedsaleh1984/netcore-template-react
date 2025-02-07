@@ -50,6 +50,8 @@ namespace AuthWebApi.Extensions
             {
                 ClassName = "ApiClient",
                 OperationNameGenerator = new SingleClientFromOperationIdOperationNameGenerator(),
+                HttpClass = HttpClass.HttpClient,
+                InjectionTokenType = InjectionTokenType.InjectionToken,
                 GenerateClientInterfaces = true,
                 TypeScriptGeneratorSettings = {
 

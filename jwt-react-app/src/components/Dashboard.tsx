@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import * as TokenUtil from "./Utils"
-const g = require('./GLOBAL.json')
+import * as TokenUtil from "../Utils"
+import { Client } from 'src/api/Client';
+import { RefreshTokenRequest } from 'src/api/ApiClient';
 
 const Dashboard: React.FC = () => {
     const [data, setData] = useState<any>(null);
@@ -15,19 +16,17 @@ const Dashboard: React.FC = () => {
             // Redirect to login
             window.location.href = '/login';
         } catch (error) {
-
             //console.error('Logout failed:', error.response?.data?.message || error.message);
-
         }
     }
 
     const refreshAccessToken = async () => {
         try {
-
-            const response = await axios.post(g.baseUrl + '/refresh-token', { token: TokenUtil.getRefreshToken() });
-            const { accessToken, refreshToken } = response.data;
+            const reqParam: RefreshTokenRequest = { token: TokenUtil.getRefreshToken() };
+            const response = await Client.auth_AuthRefreshToken(reqParam);
+            const { accessToken, refreshToken } = response;
             TokenUtil.setAccessToken(accessToken);
-            TokenUtil.setRefreshToken(refreshToken);
+            TokenUtil.setRefreshToken(refreshToken.token);
 
             return TokenUtil.getAccessToken();
         } catch (error) {
@@ -41,12 +40,8 @@ const Dashboard: React.FC = () => {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(g.baseUrl + '/Protected', {
-                headers: {
-                    Authorization: `Bearer ${TokenUtil.getAccessToken()}`,
-                },
-            });
-            setData(response.data);
+            const response = await Client.protected_Get();
+            setData(response);
         } catch (error: any) {
             console.log("WHATS UP")
             if (error.response && error.response.status === 401) {

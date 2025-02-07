@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import * as TokenUtil from "./Utils"
-import { Client } from './api/Client';
-const g = require('./GLOBAL.json')
+import * as TokenUtil from "../Utils"
+import { Client } from '../api/Client';
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState('admin');
@@ -13,8 +11,7 @@ const Login: React.FC = () => {
     const handleLogin = async () => {
         try {
             const response = await Client.auth_Login(username, password);
-
-            const { accessToken, refreshToken } = response.data;
+            const { accessToken, refreshToken } = response;
 
             TokenUtil.setAccessToken(accessToken);
             TokenUtil.setRefreshToken(refreshToken);
