@@ -49,12 +49,8 @@ const Dashboard: React.FC = () => {
                 const newAccessToken = await refreshAccessToken();
                 if (newAccessToken) {
                     // Retry the request with the new token
-                    const retryResponse = await axios.get(g.baseUrl + '/Protected', {
-                        headers: {
-                            Authorization: `Bearer ${newAccessToken}`,
-                        },
-                    });
-                    setData(retryResponse.data);
+                    const retryResponse = await Client.protected_Get();
+                    setData(retryResponse);
                 }
             } else {
                 setError('Failed to fetch data');
