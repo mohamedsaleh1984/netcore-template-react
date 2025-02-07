@@ -5,6 +5,7 @@ using NJsonSchema.CodeGeneration.TypeScript;
 using NSwag;
 using NSwag.CodeGeneration.OperationNameGenerators;
 using NSwag.CodeGeneration.TypeScript;
+using NSwag.Generation.Processors.Security;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -19,6 +20,27 @@ namespace AuthWebApi.Extensions
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
             services.AddSwaggerDocument();
+
+            //// inject the configuration
+            //IConfigurationRoot configuration = new ConfigurationBuilder()
+            //                   .SetBasePath(Directory.GetCurrentDirectory())
+            //                   .AddJsonFile("appsettings.json")
+            //                   .Build();
+            //// get the jwt settings
+            //var jwtSettings = configuration.GetSection("JwtSettings");
+            //string jwtKey = jwtSettings["Key"] ?? "";
+            //// add the jwt key to the swagger document
+            //services.AddSwaggerDocument(config =>
+            //{
+            //    config.DocumentProcessors.Add(new SecurityDefinitionAppender("JWT Token",
+            //         new OpenApiSecurityScheme
+            //         {
+            //             Type = OpenApiSecuritySchemeType.ApiKey,
+            //             Name = "Authorization",
+            //             Description = "Bearer " + jwtKey,
+            //             In = OpenApiSecurityApiKeyLocation.Header
+            //         }));
+            //});
         }
 
         public static void UseNSwag(this IApplicationBuilder app)
@@ -53,8 +75,8 @@ namespace AuthWebApi.Extensions
                 HttpClass = HttpClass.HttpClient,
                 InjectionTokenType = InjectionTokenType.InjectionToken,
                 GenerateClientInterfaces = true,
+                GenerateDtoTypes = true,
                 TypeScriptGeneratorSettings = {
-
                     TypeStyle = TypeScriptTypeStyle.Interface,
                 }
             }).GenerateFile();
