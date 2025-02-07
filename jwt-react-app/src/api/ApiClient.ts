@@ -12,9 +12,9 @@ export interface IApiClient {
 
     protected_Get(): Promise<FileResponse | null>;
 
-    auth_Login(username: string | null | undefined, password: string | null | undefined): Promise<FileResponse | null>;
+    auth_Login(username: string | null | undefined, password: string | null | undefined): Promise<LoginResponse>;
 
-    auth_AuthRefreshToken(request: RefreshTokenRequest): Promise<FileResponse | null>;
+    auth_AuthRefreshToken(request: RefreshTokenRequest): Promise<RefreshTokenResponse>;
 
     weatherForecast_Get(): Promise<WeatherForecast[]>;
 }
@@ -67,7 +67,7 @@ export class ApiClient implements IApiClient {
         return Promise.resolve<FileResponse | null>(null as any);
     }
 
-    auth_Login(username: string | null | undefined, password: string | null | undefined): Promise<FileResponse | null> {
+    auth_Login(username: string | null | undefined, password: string | null | undefined): Promise<LoginResponse> {
         let url_ = this.baseUrl + "/api/Auth/login";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -81,7 +81,7 @@ export class ApiClient implements IApiClient {
             body: content_,
             method: "POST",
             headers: {
-                "Accept": "application/octet-stream"
+                "Accept": "application/json"
             }
         };
 
@@ -90,29 +90,24 @@ export class ApiClient implements IApiClient {
         });
     }
 
-    protected processAuth_Login(response: Response): Promise<FileResponse | null> {
+    protected processAuth_Login(response: Response): Promise<LoginResponse> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as LoginResponse;
+            return result200;
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<FileResponse | null>(null as any);
+        return Promise.resolve<LoginResponse>(null as any);
     }
 
-    auth_AuthRefreshToken(request: RefreshTokenRequest): Promise<FileResponse | null> {
+    auth_AuthRefreshToken(request: RefreshTokenRequest): Promise<RefreshTokenResponse> {
         let url_ = this.baseUrl + "/api/Auth/refreshtoken";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -123,7 +118,7 @@ export class ApiClient implements IApiClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/octet-stream"
+                "Accept": "application/json"
             }
         };
 
@@ -132,26 +127,21 @@ export class ApiClient implements IApiClient {
         });
     }
 
-    protected processAuth_AuthRefreshToken(response: Response): Promise<FileResponse | null> {
+    protected processAuth_AuthRefreshToken(response: Response): Promise<RefreshTokenResponse> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as RefreshTokenResponse;
+            return result200;
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<FileResponse | null>(null as any);
+        return Promise.resolve<RefreshTokenResponse>(null as any);
     }
 
     weatherForecast_Get(): Promise<WeatherForecast[]> {
@@ -186,6 +176,25 @@ export class ApiClient implements IApiClient {
         }
         return Promise.resolve<WeatherForecast[]>(null as any);
     }
+}
+
+export interface LoginResponse {
+    accessToken: string;
+    refreshToken: string;
+}
+
+export interface RefreshTokenResponse {
+    accessToken: string;
+    refreshToken: RefreshToken;
+}
+
+export interface RefreshToken {
+    token: string;
+    expires: Date;
+    revoked: boolean;
+    created: Date;
+    revokedAt?: Date | undefined;
+    revokedByIp: string;
 }
 
 export interface RefreshTokenRequest {
