@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import * as TokenUtil from "../Utils"
 import { Client } from 'src/api/Client';
 import { RefreshTokenRequest } from 'src/api/ApiClient';
+import { jwtDecode } from 'jwt-decode';
 
 const Dashboard: React.FC = () => {
     const [data, setData] = useState<any>(null);
@@ -37,6 +38,25 @@ const Dashboard: React.FC = () => {
         }
     };
 
+    const validateToken = (token: string) => {
+        try {
+
+            // Decode the token
+            const decodedToken: any = jwtDecode(token);
+
+            // Check if the token is expired
+            const currentTime = Date.now() / 1000; // Convert to seconds
+            if (decodedToken.exp < currentTime) {
+                return { isValid: false, error: "Token has expired." };
+            }
+
+            // If the token is valid, return the decoded payload
+            return { isValid: true, decodedToken };
+        } catch (error) {
+            return { isValid: false, error: "Invalid token." };
+        }
+    };
+
     const fetchData = async () => {
         try {
             const response = await Client.protected_Get();
@@ -57,8 +77,27 @@ const Dashboard: React.FC = () => {
         }
     };
 
+    const logic = async () => {
+        // check if there is access token or not
+        const accessToken = TokenUtil.getAccessToken();
+        if (!accessToken) {
+            window.location.href = '/login';
+            return;
+        }
+
+        const valToken = validateToken(accessToken);
+        if (!valToken.isValid) {
+            const accessToken = await refreshAccessToken();
+            if (accessToken) {
+                await fetchData();
+            }
+        }
+
+
+    }
+
     useEffect(() => {
-        fetchData();
+        logic();
     }, []);
 
     if (error) {
