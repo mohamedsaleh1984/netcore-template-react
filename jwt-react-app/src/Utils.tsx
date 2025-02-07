@@ -23,5 +23,15 @@ export const getAccessToken = (): string => {
 };
 
 export const Inspect = (funName: string, data: any) => {
-    console.log(`called from ${funName} => ${data}`)
+    if (data instanceof Array) {
+        let items = "";
+        data.forEach((element, index) => {
+            items += `${index + 1}:${element}\n`
+        });
+        console.log(`called from ${funName} => ${items}`)
+    }
+    else {
+        console.log(`called from ${funName} => ${data}`)
+    }
+
 }
