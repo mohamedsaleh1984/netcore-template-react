@@ -15,7 +15,7 @@ namespace AuthWebApi.Helper
             return new RefreshToken
             {
                 Token = Guid.NewGuid().ToString(),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddDays(Convert.ToInt32(_config["JwtSettings:RefreshTokenExpires"])),
                 Revoked = false,
                 Created = DateTime.UtcNow,
                 RevokedAt = null,
@@ -24,7 +24,7 @@ namespace AuthWebApi.Helper
         }
         public string GenerateAccessToken(User user)
         {
-            var jwtKey = _config["Jwt:Key"];
+            var jwtKey = _config["JwtSettings:Key"];
             if (string.IsNullOrEmpty(jwtKey))
             {
                 throw new ArgumentNullException(nameof(jwtKey), "JWT Key cannot be null or empty.");
@@ -38,16 +38,17 @@ namespace AuthWebApi.Helper
                     new Claim(ClaimTypes.NameIdentifier, user.Username),
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.Role, user.Role)
-                };
+            };
 
             var token = new JwtSecurityToken(
-                _config["Jwt:Issuer"],
-                _config["Jwt:Audience"],
-                claims,
-                expires: DateTime.Now.AddMinutes(15), // Short-lived access token
-                signingCredentials: credentials);
+               issuer:  _config["JwtSettings:Issuer"],
+               audience: _config["JwtSettings:Audience"],
+               claims: claims,
+               expires: DateTime.Now.AddMinutes(Convert.ToInt32(_config["JwtSettings:AccessTokenExpires"])), // Short-lived access token
+               signingCredentials: credentials);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            string tokenPayload = new JwtSecurityTokenHandler().WriteToken(token);
+            return tokenPayload;
         }
     }
 }

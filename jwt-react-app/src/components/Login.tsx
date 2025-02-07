@@ -5,7 +5,7 @@ import { Client } from '../api/Client';
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState('admin');
-    const [password, setPassword] = useState('admin');
+    const [password, setPassword] = useState('password');
     const navigate = useNavigate();
 
     const handleLogin = async () => {
