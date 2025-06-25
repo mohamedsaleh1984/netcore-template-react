@@ -4,6 +4,8 @@
 // </auto-generated>
 //----------------------
 
+import { getAccessToken } from "src/Utils";
+
 /* tslint:disable */
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
@@ -40,7 +42,8 @@ export class ApiClient implements IApiClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization":`Bearer ${getAccessToken()}`
             }
         };
 

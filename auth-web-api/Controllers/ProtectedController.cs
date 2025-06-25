@@ -14,7 +14,7 @@ namespace AuthApi.Controllers
             int res = await Task.Run(() =>
             {
                 // Simulate some processing that takes time
-                Task.Delay(5000).Wait(); // Simulate some delay
+                Task.Delay(2000).Wait(); // Simulate some delay
                 return 1 + 1;
             }); // Simulate some processing
 
