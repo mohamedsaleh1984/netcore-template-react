@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthApi.Controllers
@@ -8,9 +9,17 @@ namespace AuthApi.Controllers
     [Authorize] // Requires authentication
     public class ProtectedController : ControllerBase
     {
-        public IActionResult Get()
+        public async Task<ActionResult<string>> Call()
         {
-            return Ok(new { Message = "This is a protected endpoint!" });
+            int res = await Task.Run(() =>
+            {
+                // Simulate some processing that takes time
+                Task.Delay(5000).Wait(); // Simulate some delay
+                return 1 + 1;
+            }); // Simulate some processing
+
+            // This endpoint is protected and requires authentication
+            return Ok("You have accessed a protected endpoint!, Calc result is " + res.ToString());
         }
     }
 }

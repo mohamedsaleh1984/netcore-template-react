@@ -41,14 +41,15 @@ namespace AuthWebApi.Controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult AuthenticatedOnlyEndpoint()
+        public ActionResult<string> AuthenticatedOnlyEndpoint()
         {
+            // This endpoint is protected and requires authentication
             return Ok("You are authenticated!");
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet("admin-only")]
-        public IActionResult AdminOnlyEndpoint()
+        public ActionResult<string> AdminOnlyEndpoint()
         {
             return Ok("You are and admin!");
         }
