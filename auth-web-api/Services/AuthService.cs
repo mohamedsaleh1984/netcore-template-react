@@ -32,6 +32,15 @@ namespace AuthWebApi.Services
 
         private async Task<TokenResponseDto> CreateTokenResponse(User? user)
         {
+            if (user == null)
+            {
+                return new TokenResponseDto()
+                {
+                    AccessToken = "",
+                    RefreshToken = ""
+                };
+            }
+
             return new TokenResponseDto
             {
                 AccessToken = CreateToken(user),
