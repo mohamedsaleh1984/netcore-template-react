@@ -1,5 +1,6 @@
 ﻿
 
+using AuthWebApi.AppDbContext;
 using AuthWebApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

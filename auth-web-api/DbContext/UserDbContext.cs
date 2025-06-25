@@ -3,7 +3,7 @@ using AuthWebApi.Models;
 using Microsoft.EntityFrameworkCore;
 
 
-namespace AuthWebApi 
+namespace AuthWebApi.AppDbContext
 {
     public class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(options)
     {

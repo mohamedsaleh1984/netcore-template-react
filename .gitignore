@@ -52,6 +52,7 @@ msbuild.wrn
 
 # production
 /jwt-react-app/build
+/auth-web-api/Migrations
 
 # misc
 .DS_Store

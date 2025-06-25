@@ -5,7 +5,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpLogging(x => { }); 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi(); 
+builder.Services.AddOpenApi();
+builder.Services.AddSqlServer<AuthWebApi.AppDbContext.UserDbContext>(
+    builder.Configuration.GetValue<string>("ConnectionStrings:DefaultConnection"));
 builder.Logging.AddConsole();
 builder.Services.AddJwtExtension();
 builder.Services.AddSwager();
