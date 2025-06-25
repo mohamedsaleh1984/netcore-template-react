@@ -4,9 +4,22 @@ import { Client } from 'src/api/Client';
 import { jwtDecode } from 'jwt-decode';
 import { RefreshTokenRequestDto } from 'src/api/ApiClient';
 
+ 
 const Dashboard: React.FC = () => {
     const [data, setData] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
+
+    const getUserId = ()=>{
+        const token = TokenUtil.getAccessToken();
+        try {
+            const decodedToken = jwtDecode(token);
+            const userId = decodedToken.sub; // Common claims for user ID
+            return userId;
+        } catch (error) {
+            console.error('Error decoding token:', error);
+        }
+        return "NA";
+    }
 
     const handleLogout = async () => {
         try {
@@ -25,7 +38,7 @@ const Dashboard: React.FC = () => {
         try {
             
             var refToken:RefreshTokenRequestDto= {
-                userId:"",
+                userId:getUserId()!,
                 refreshToken:TokenUtil.getRefreshToken()
             }
             
