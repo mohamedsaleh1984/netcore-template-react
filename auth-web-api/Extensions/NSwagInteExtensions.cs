@@ -1,14 +1,9 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
+﻿using Microsoft.AspNetCore.Http.Extensions;
 using NJsonSchema.CodeGeneration.TypeScript;
 using NSwag;
 using NSwag.CodeGeneration.OperationNameGenerators;
 using NSwag.CodeGeneration.TypeScript;
-using NSwag.Generation.Processors.Security;
-using System;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace AuthWebApi.Extensions
 {
@@ -18,7 +13,22 @@ namespace AuthWebApi.Extensions
         {
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddEndpointsApiExplorer();
-            services.AddSwaggerDocument(); 
+
+            //// Support Authorization for Generated Client.
+            //services.AddSwaggerDocument(doc =>
+            //{
+            //    doc.AddSecurity("Bearer", new OpenApiSecurityScheme()
+            //    {
+            //        Name = "Authorization",
+            //        Type = OpenApiSecuritySchemeType.ApiKey,
+            //        Scheme = "Bearer",
+            //        BearerFormat = "JWT",
+            //        In = OpenApiSecurityApiKeyLocation.Header,
+            //        Description = "JWT Authorization Header using the Bearer schema."
+            //    });
+            //    doc.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("Bearer"));
+            //});
+            services.AddSwaggerDocument();
 
         }
 
@@ -47,6 +57,7 @@ namespace AuthWebApi.Extensions
         {
             var document = await GetOpenApiDocument(context);
 
+
             return new TypeScriptClientGenerator(document, new TypeScriptClientGeneratorSettings
             {
                 ClassName = "ApiClient",
@@ -57,7 +68,14 @@ namespace AuthWebApi.Extensions
                 GenerateDtoTypes = true,
                 TypeScriptGeneratorSettings = {
                     TypeStyle = TypeScriptTypeStyle.Interface,
-                }
+                },
+                //
+                //ConfigurationClass = "ApiClientConfig",
+                //UseTransformOptionsMethod = true,
+                //UseGetBaseUrlMethod = true,
+                //// Axios Or Fetch
+                //Template = TypeScriptTemplate.Axios,
+                //ClientBaseClass = null
             }).GenerateFile();
         }
         private static async Task<OpenApiDocument> GetOpenApiDocument(HttpContext context)

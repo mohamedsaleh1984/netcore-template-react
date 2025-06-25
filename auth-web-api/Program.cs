@@ -3,17 +3,17 @@ using AuthWebApi.Services;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddHttpLogging(x => { }); 
-builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddHttpLogging(x => { });
+builder.Services.AddJwtExtension();
+builder.Services.AddControllers();
 builder.Services.AddSqlServer<AuthWebApi.AppDbContext.UserDbContext>(
     builder.Configuration.GetValue<string>("ConnectionStrings:DefaultConnection"));
 builder.Logging.AddConsole();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddJwtExtension();
 
-builder.Services.AddSwagger();  
+builder.Services.AddSwagger();
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCorsExtension();
@@ -37,8 +37,7 @@ else
 app.UseHttpsRedirection();
 
 app.UseRouting();
-
-app.UseAuthorization();
+app.UseAuthentication();
 app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthorization();
 
