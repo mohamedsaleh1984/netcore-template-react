@@ -12,7 +12,7 @@ public static class JwtExtension
             .Build();
 
         var jwtSettings = configuration.GetSection("JwtSettings");
-        string jwtKey = jwtSettings["Key"] ?? "";
+        string jwtKey = jwtSettings["Token"] ?? "";
         if (string.IsNullOrEmpty(jwtKey))
             throw new Exception("JWT Key is not found in appsettings.json");
 

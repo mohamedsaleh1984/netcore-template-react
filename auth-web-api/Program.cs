@@ -1,4 +1,5 @@
-using AuthWebApi.Extensions;  
+using AuthWebApi.Extensions;
+using AuthWebApi.Services;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,9 +10,12 @@ builder.Services.AddOpenApi();
 builder.Services.AddSqlServer<AuthWebApi.AppDbContext.UserDbContext>(
     builder.Configuration.GetValue<string>("ConnectionStrings:DefaultConnection"));
 builder.Logging.AddConsole();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddJwtExtension();
-builder.Services.AddSwager();
-var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+builder.Services.AddSwagger();  
+
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCorsExtension();
 
 

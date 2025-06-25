@@ -92,7 +92,8 @@ namespace AuthWebApi.Services
         {
             var refreshToken = GenerateRefreshToken();
             user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(configuration.GetValue<int>("JwtSettings:RefreshTokenExpires"));
+
             await context.SaveChangesAsync();
             return refreshToken;
         }
@@ -107,15 +108,15 @@ namespace AuthWebApi.Services
             };
 
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Token")!));
+                Encoding.UTF8.GetBytes(configuration.GetSection("JwtSettings").GetValue<string>("Token")!));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
             var tokenDescriptor = new JwtSecurityToken(
-                issuer: configuration.GetValue<string>("AppSettings:Issuer"),
-                audience: configuration.GetValue<string>("AppSettings:Audience"),
+                issuer: configuration.GetValue<string>("JwtSettings:Issuer"),
+                audience: configuration.GetValue<string>("JwtSettings:Audience"),
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(1),
+                expires: DateTime.UtcNow.AddMinutes(configuration.GetValue<int>("JwtSettings:AccessTokenExpires")),
                 signingCredentials: creds
             );
 

@@ -14,12 +14,11 @@ namespace AuthWebApi.Extensions
 {
     public static class NSwagInteExtensions
     {
-        public static void AddSwager(this IServiceCollection services)
+        public static void AddSwagger(this IServiceCollection services)
         {
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
-            services.AddSwaggerDocument();
+            services.AddSwaggerDocument(); 
 
         }
 

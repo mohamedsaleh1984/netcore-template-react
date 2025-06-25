@@ -9,6 +9,18 @@ const Login: React.FC = () => {
     const [password, setPassword] = useState('password');
     const navigate = useNavigate();
 
+    const handleRegister = async()=>{
+        var userInfo:UserDto = {password,username};
+        const response = await Client.auth_Register(userInfo);
+        console.log(response.id);
+        console.log(response.passwordHash);
+        console.log(response.role);
+        console.log(response.username);
+        TokenUtil.setRefreshToken(response.refreshToken!)
+        
+    }
+
+
     const handleLogin = async () => {
         try {
             var userInfo:UserDto = {password,username};
@@ -31,6 +43,7 @@ const Login: React.FC = () => {
             <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
             <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
             <button onClick={handleLogin}>Login</button>
+            <button onClick={handleRegister}>Register</button>
         </div>
     );
 };
