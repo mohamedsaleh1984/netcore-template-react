@@ -3,6 +3,7 @@ using NJsonSchema.CodeGeneration.TypeScript;
 using NSwag;
 using NSwag.CodeGeneration.OperationNameGenerators;
 using NSwag.CodeGeneration.TypeScript;
+using NSwag.Generation.Processors.Security;
 using System.Reflection;
 
 namespace AuthWebApi.Extensions
@@ -14,21 +15,20 @@ namespace AuthWebApi.Extensions
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddEndpointsApiExplorer();
 
-            //// Support Authorization for Generated Client.
-            //services.AddSwaggerDocument(doc =>
-            //{
-            //    doc.AddSecurity("Bearer", new OpenApiSecurityScheme()
-            //    {
-            //        Name = "Authorization",
-            //        Type = OpenApiSecuritySchemeType.ApiKey,
-            //        Scheme = "Bearer",
-            //        BearerFormat = "JWT",
-            //        In = OpenApiSecurityApiKeyLocation.Header,
-            //        Description = "JWT Authorization Header using the Bearer schema."
-            //    });
-            //    doc.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("Bearer"));
-            //});
-            services.AddSwaggerDocument();
+            // Support Authorization for Generated Client.
+            services.AddSwaggerDocument(doc =>
+            {
+                doc.AddSecurity("Bearer", new OpenApiSecurityScheme()
+                {
+                    Name = "Authorization",
+                    Type = OpenApiSecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = OpenApiSecurityApiKeyLocation.Header,
+                    Description = "JWT Authorization Header using the Bearer schema."
+                });
+                doc.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("Bearer"));
+            });
 
         }
 
