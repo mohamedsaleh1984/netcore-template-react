@@ -11,13 +11,13 @@ public static class JwtExtension
             .AddJsonFile("appsettings.json")
             .Build();
 
-        var jwtSettings = configuration.GetSection("JwtSettings");
-        string jwtKey = jwtSettings["Token"] ?? "";
+        string jwtKey = configuration.GetSection("JwtSettings").GetValue<string>("Token") ?? "";
+
         if (string.IsNullOrEmpty(jwtKey))
             throw new Exception("JWT Key is not found in appsettings.json");
 
 
-        var key = Encoding.UTF8.GetBytes(jwtKey);
+        var keyInBytes = Encoding.UTF8.GetBytes(jwtKey);
 
         serCollection.AddAuthentication(options =>
         {
@@ -33,9 +33,9 @@ public static class JwtExtension
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = jwtSettings["Issuer"],
-                ValidAudience = jwtSettings["Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(key)
+                ValidIssuer = configuration.GetSection("JwtSettings").GetValue<string>("Issuer") ?? "",
+                ValidAudience = configuration.GetSection("JwtSettings").GetValue<string>("Audience") ?? "",
+                IssuerSigningKey = new SymmetricSecurityKey(keyInBytes)
             };
         });
     }
