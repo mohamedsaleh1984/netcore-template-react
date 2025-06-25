@@ -1,75 +1,56 @@
-﻿using AuthWebApi.Helper;
-using AuthWebApi.Models;
+﻿using AuthWebApi.Models;
+using AuthWebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthWebApi.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    [ApiController]
+    public class AuthController(IAuthService authService) : ControllerBase
     {
-        private readonly IConfiguration _config;
-        private readonly TokenHelper _tokenHelper;
-
-        public AuthController(IConfiguration config,TokenHelper tokenHelper)
+        [HttpPost("register")]
+        public async Task<ActionResult<User>> Register(UserDto request)
         {
-            _config = config;
-            _tokenHelper = tokenHelper;
+            var user = await authService.RegisterAsync(request);
+            if (user is null)
+                return BadRequest("Username already exists.");
+
+            return Ok(user);
         }
 
         [HttpPost("login")]
-        public ActionResult<LoginResponse> Login([FromForm] LoginModel userLogin)
+        public async Task<ActionResult<TokenResponseDto>> Login(UserDto request)
         {
-            string ipAddress = Request.HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
-            var user = Authenticate(userLogin);
-            if (user == null) return Unauthorized();
+            var result = await authService.LoginAsync(request);
+            if (result is null)
+                return BadRequest("Invalid username or password.");
 
-            var accessToken = _tokenHelper.GenerateAccessToken(user);
-            var refreshToken = _tokenHelper.GenerateRefreshToken(ipAddress);
-
-            // Save the refresh token to the user
-            user.RefreshTokens.Add(refreshToken);
-            // In a real app, save the user to the database here
-
-            return Ok(new LoginResponse()
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken.Token
-            });
+            return Ok(result);
         }
 
-
-
-        [HttpPost("refreshtoken")]
-        public ActionResult<RefreshTokenResponse> AuthRefreshToken([FromBody] RefreshTokenRequest request)
+        [HttpPost("refresh-token")]
+        public async Task<ActionResult<TokenResponseDto>> RefreshToken(RefreshTokenRequestDto request)
         {
-            string ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? "Unknown";
+            var result = await authService.RefreshTokensAsync(request);
+            if (result is null || result.AccessToken is null || result.RefreshToken is null)
+                return Unauthorized("Invalid refresh token.");
 
-            var user = DbContext.DbContext.Users.FirstOrDefault(u => u.AccessToken.Any(t => t == request.Token));
-            if (user == null) return Unauthorized("Invalid token");
-
-            var refreshToken = user.RefreshTokens.SingleOrDefault(rt => rt.Token == request.Token);
-            if (refreshToken == null) return Unauthorized("Invalid token");
-
-            // Replace the old refresh token with a new one
-            var newRefreshToken = _tokenHelper.GenerateRefreshToken(ipAddress);
-            user.RefreshTokens.Add(newRefreshToken);
-
-            // Generate a new access token
-            var accessToken = _tokenHelper.GenerateAccessToken(user);
-
-            return Ok(new RefreshTokenResponse()
-            {
-                AccessToken = accessToken,
-                RefreshToken = newRefreshToken
-            });
+            return Ok(result);
         }
 
-        private User? Authenticate(LoginModel userLogin)
+        [Authorize]
+        [HttpGet]
+        public IActionResult AuthenticatedOnlyEndpoint()
         {
-            // Replace with your user authentication logic
-            var currentUser = DbContext.DbContext.Users.FirstOrDefault(u => u.Username == userLogin.Username && u.Password == userLogin.Password);
-            return currentUser;
-        } 
+            return Ok("You are authenticated!");
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("admin-only")]
+        public IActionResult AdminOnlyEndpoint()
+        {
+            return Ok("You are and admin!");
+        }
     }
 }

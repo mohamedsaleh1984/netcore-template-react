@@ -1,10 +1,11 @@
-using AuthWebApi.Extensions;
-using AuthWebApi.Helper;
+using AuthWebApi.Extensions;  
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpLogging(x => { }); 
 builder.Services.AddControllers();
-builder.Services.AddSingleton<TokenHelper>();
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi(); 
 builder.Logging.AddConsole();
 builder.Services.AddJwtExtension();
 builder.Services.AddSwager();
@@ -18,6 +19,8 @@ app.UseHttpLogging();
 if (app.Environment.IsDevelopment())
 {
     app.UseNSwag();
+    app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 else
 {

@@ -21,26 +21,6 @@ namespace AuthWebApi.Extensions
             services.AddSwaggerGen();
             services.AddSwaggerDocument();
 
-            //// inject the configuration
-            //IConfigurationRoot configuration = new ConfigurationBuilder()
-            //                   .SetBasePath(Directory.GetCurrentDirectory())
-            //                   .AddJsonFile("appsettings.json")
-            //                   .Build();
-            //// get the jwt settings
-            //var jwtSettings = configuration.GetSection("JwtSettings");
-            //string jwtKey = jwtSettings["Key"] ?? "";
-            //// add the jwt key to the swagger document
-            //services.AddSwaggerDocument(config =>
-            //{
-            //    config.DocumentProcessors.Add(new SecurityDefinitionAppender("JWT Token",
-            //         new OpenApiSecurityScheme
-            //         {
-            //             Type = OpenApiSecuritySchemeType.ApiKey,
-            //             Name = "Authorization",
-            //             Description = "Bearer " + jwtKey,
-            //             In = OpenApiSecurityApiKeyLocation.Header
-            //         }));
-            //});
         }
 
         public static void UseNSwag(this IApplicationBuilder app)
@@ -58,7 +38,7 @@ namespace AuthWebApi.Extensions
                 x.Path = "/swagger/v1/swagger.json";
 
             });
-            app.UseSwaggerUi3(options =>
+            app.UseSwaggerUi(options =>
             {
                 options.CustomStylesheetPath = "/swagger-ui/theme-feeling-blue.css";
             });
