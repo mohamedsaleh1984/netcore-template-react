@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as TokenUtil from "../Utils"
 import { Client } from '../api/Client';
+import { UserDto } from 'src/api/ApiClient';
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState('admin');
@@ -10,7 +11,9 @@ const Login: React.FC = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await Client.auth_Login(username, password);
+            var userInfo:UserDto = {password,username};
+
+            const response = await Client.auth_Login(userInfo);
             const { accessToken, refreshToken } = response;
 
             TokenUtil.setAccessToken(accessToken);

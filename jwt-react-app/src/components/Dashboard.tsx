@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import * as TokenUtil from "../Utils"
-import { Client } from 'src/api/Client';
-import { RefreshTokenRequest } from 'src/api/ApiClient';
+import { Client } from 'src/api/Client'; 
 import { jwtDecode } from 'jwt-decode';
+import { RefreshTokenRequestDto } from 'src/api/ApiClient';
 
 const Dashboard: React.FC = () => {
     const [data, setData] = useState<any>(null);
@@ -23,12 +23,20 @@ const Dashboard: React.FC = () => {
 
     const refreshAccessToken = async () => {
         try {
-            const reqParam: RefreshTokenRequest = { token: TokenUtil.getRefreshToken() };
-            const response = await Client.auth_AuthRefreshToken(reqParam);
+            
+            var refToken:RefreshTokenRequestDto= {
+                userId:"",
+                refreshToken:TokenUtil.getRefreshToken()
+            }
+            
+            const response = await Client.auth_RefreshToken(refToken);
             const { accessToken, refreshToken } = response;
+
             TokenUtil.setAccessToken(accessToken);
-            TokenUtil.setRefreshToken(refreshToken.token);
+            TokenUtil.setRefreshToken(refreshToken);
+            
             TokenUtil.Inspect("refreshAccessToken", [accessToken, accessToken])
+            
             return TokenUtil.getAccessToken();
         } catch (error) {
             console.error('Failed to refresh token', error);
@@ -63,7 +71,7 @@ const Dashboard: React.FC = () => {
 
     const fetchData = async () => {
         try {
-            const response = await Client.protected_Get();
+            const response = await Client.protected_Call();
             setData(response);
         } catch (error: any) {
             TokenUtil.Inspect("fetchData", "Failed to fetchData");
@@ -73,7 +81,7 @@ const Dashboard: React.FC = () => {
                 const newAccessToken = await refreshAccessToken();
                 if (newAccessToken) {
                     // Retry the request with the new token
-                    const retryResponse = await Client.protected_Get();
+                    const retryResponse = await Client.protected_Call();
                     setData(retryResponse);
                 }
             } else {

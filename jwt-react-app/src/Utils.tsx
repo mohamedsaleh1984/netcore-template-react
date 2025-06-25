@@ -1,25 +1,25 @@
 export const setAccessToken = (token: string) => {
-    localStorage.setItem('accessToken', token);
+    localStorage.setItem('AccessToken', token);
 };
 
 
 export const removeAccessToken = () => {
-    localStorage.removeItem('accessToken');
+    localStorage.removeItem('AccessToken');
 };
 
 export const setRefreshToken = (token: string) => {
-    localStorage.setItem('refreshToken', token);
+    localStorage.setItem('RefreshToken', token);
 };
 
 export const removeRefreshToken = () => {
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('RefreshToken');
 };
 
 export const getRefreshToken = (): string => {
-    return localStorage.getItem('refreshToken') || "";
+    return localStorage.getItem('RefreshToken') || "";
 }
 export const getAccessToken = (): string => {
-    return localStorage.getItem('accessToken') || "";
+    return localStorage.getItem('AccessToken') || "";
 };
 
 export const Inspect = (funName: string, data: any) => {
