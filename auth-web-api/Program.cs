@@ -2,6 +2,7 @@ using AuthWebApi.Extensions;
 using AuthWebApi.Services;
 using Scalar.AspNetCore;
 
+const string ALLOW_DEVELOPMENT_CORS_ORIGINS_POLICY = "AllowDevelopmentSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -12,10 +13,7 @@ builder.Services.AddSqlServer<AuthWebApi.AppDbContext.UserDbContext>(
     builder.Configuration.GetValue<string>("ConnectionStrings:DefaultConnection"));
 builder.Logging.AddConsole();
 builder.Services.AddScoped<IAuthService, AuthService>();
-
 builder.Services.AddSwagger();
-
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCorsExtension();
 
 
@@ -27,6 +25,7 @@ if (app.Environment.IsDevelopment())
     app.UseNSwag();
     app.MapOpenApi();
     app.MapScalarApiReference();
+    app.UseDeveloperExceptionPage();
 }
 else
 {
@@ -38,7 +37,7 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 app.UseAuthentication();
-app.UseCors(MyAllowSpecificOrigins);
+app.UseCors(ALLOW_DEVELOPMENT_CORS_ORIGINS_POLICY);
 app.UseAuthorization();
 
 app.MapControllers();

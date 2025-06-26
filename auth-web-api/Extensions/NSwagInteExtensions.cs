@@ -51,6 +51,8 @@ namespace AuthWebApi.Extensions
             {
                 options.CustomStylesheetPath = "/swagger-ui/theme-feeling-blue.css";
             });
+
+
             app.Use(CreatePath("/_/ts", GenerateTypeScriptClient));
         }
         private static async Task<string> GenerateTypeScriptClient(HttpContext context)
@@ -58,7 +60,7 @@ namespace AuthWebApi.Extensions
             var document = await GetOpenApiDocument(context);
 
 
-            return new TypeScriptClientGenerator(document, new TypeScriptClientGeneratorSettings
+            string fileContent = new TypeScriptClientGenerator(document, new TypeScriptClientGeneratorSettings
             {
                 ClassName = "ApiClient",
                 OperationNameGenerator = new SingleClientFromOperationIdOperationNameGenerator(),
@@ -69,14 +71,19 @@ namespace AuthWebApi.Extensions
                 TypeScriptGeneratorSettings = {
                     TypeStyle = TypeScriptTypeStyle.Interface,
                 },
-                //
-                //ConfigurationClass = "ApiClientConfig",
-                //UseTransformOptionsMethod = true,
-                //UseGetBaseUrlMethod = true,
-                //// Axios Or Fetch
-                //Template = TypeScriptTemplate.Axios,
-                //ClientBaseClass = null
+                UseTransformOptionsMethod = true,
+                Template = TypeScriptTemplate.Fetch,
+                ClientBaseClass = "BaseClient",
+
             }).GenerateFile();
+
+            List<string> strings = fileContent.Split('\n').ToList();
+            strings[9] = @"import { BaseClient } from ""./BaseClient"";";
+
+
+            fileContent = string.Join("\n", strings);
+
+            return fileContent;
         }
         private static async Task<OpenApiDocument> GetOpenApiDocument(HttpContext context)
         {

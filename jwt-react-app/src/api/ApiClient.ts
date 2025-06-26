@@ -4,12 +4,10 @@
 // </auto-generated>
 //----------------------
 
-import { getAccessToken } from "src/Utils";
-
 /* tslint:disable */
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
-
+import { BaseClient } from "./BaseClient";
 export interface IApiClient {
 
     protected_Call(): Promise<string>;
@@ -25,12 +23,13 @@ export interface IApiClient {
     auth_AdminOnlyEndpoint(): Promise<string>;
 }
 
-export class ApiClient implements IApiClient {
+export class ApiClient extends BaseClient implements IApiClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        super();
         this.http = http ? http : window as any;
         this.baseUrl = baseUrl ?? "http://localhost:5000";
     }
@@ -42,12 +41,13 @@ export class ApiClient implements IApiClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/json",
-                "Authorization":`Bearer ${getAccessToken()}`
+                "Accept": "application/json"
             }
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
             return this.processProtected_Call(_response);
         });
     }
@@ -84,7 +84,9 @@ export class ApiClient implements IApiClient {
             }
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
             return this.processAuth_Register(_response);
         });
     }
@@ -121,7 +123,9 @@ export class ApiClient implements IApiClient {
             }
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
             return this.processAuth_Login(_response);
         });
     }
@@ -158,7 +162,9 @@ export class ApiClient implements IApiClient {
             }
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
             return this.processAuth_RefreshToken(_response);
         });
     }
@@ -191,7 +197,9 @@ export class ApiClient implements IApiClient {
             }
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
             return this.processAuth_AuthenticatedOnlyEndpoint(_response);
         });
     }
@@ -224,7 +232,9 @@ export class ApiClient implements IApiClient {
             }
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.http.fetch(url_, transformedOptions_);
+        }).then((_response: Response) => {
             return this.processAuth_AdminOnlyEndpoint(_response);
         });
     }
