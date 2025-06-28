@@ -12,16 +12,27 @@ using System.Text;
 
 namespace AuthWebApi.Services
 {
-    public class AuthService(UserDbContext context, IConfiguration configuration) : IAuthService
+    public class AuthService : IAuthService
     {
+        private readonly UserManager<User> _userManager;
+        private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
+
+        public AuthService(ApplicationDbContext context, IConfiguration configuration, UserManager<User> userManager)
+        {
+            _context = context;
+            _userManager = userManager;
+            _configuration = configuration;
+        }
+
         public async Task<TokenResponseDto?> LoginAsync(UserDto request)
         {
-            var user = await context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == request.Username);
             if (user is null)
             {
                 return null;
             }
-            if (new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, request.Password)
+            if (new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash!, request.Password)
                 == PasswordVerificationResult.Failed)
             {
                 return null;
@@ -43,27 +54,36 @@ namespace AuthWebApi.Services
 
             return new TokenResponseDto
             {
-                AccessToken = CreateToken(user),
+                AccessToken = await CreateToken(user),
                 RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
             };
         }
 
         public async Task<User?> RegisterAsync(UserDto request)
         {
-            if (await context.Users.AnyAsync(u => u.Username == request.Username))
+            if (await _context.Users.AnyAsync(u => u.UserName == request.Username))
             {
                 return null;
             }
 
+            string[] roles = ["Admin", "Manager", "User"];
+            // Add Role
+            int roleIndex = new Random().Next(0, 3);
+            string roleName = roles[roleIndex];
+
             var user = new User();
-            var hashedPassword = new PasswordHasher<User>()
-                .HashPassword(user, request.Password);
+            var hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
 
-            user.Username = request.Username;
+            user.UserName = request.Username;
             user.PasswordHash = hashedPassword;
+            user.Role = roleName;
 
-            context.Users.Add(user);
-            await context.SaveChangesAsync();
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            var result = await _userManager.AddToRoleAsync(user, roleName);
+            if (!result.Succeeded)
+                return null;
 
             return user;
         }
@@ -79,7 +99,7 @@ namespace AuthWebApi.Services
 
         private async Task<User?> ValidateRefreshTokenAsync(Guid userId, string refreshToken)
         {
-            var user = await context.Users.FindAsync(userId);
+            var user = await _context.Users.FindAsync(userId);
             if (user is null || user.RefreshToken != refreshToken
                 || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
             {
@@ -101,31 +121,38 @@ namespace AuthWebApi.Services
         {
             var refreshToken = GenerateRefreshToken();
             user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(configuration.GetValue<int>("JwtSettings:RefreshTokenExpires"));
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_configuration.GetValue<int>("JwtSettings:RefreshTokenExpires"));
 
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
             return refreshToken;
         }
 
-        private string CreateToken(User user)
+        private async Task<string> CreateToken(User user)
         {
+            // Add roles to the claims
+            var userRoles = await _userManager.GetRolesAsync(user);
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Name, user.UserName!),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Role, user.Role),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
+            foreach (var userRole in userRoles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, userRole));
+            }
+
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(configuration.GetSection("JwtSettings").GetValue<string>("Token")!));
+                Encoding.UTF8.GetBytes(_configuration.GetSection("JwtSettings").GetValue<string>("Token")!));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
             var tokenDescriptor = new JwtSecurityToken(
-                issuer: configuration.GetValue<string>("JwtSettings:Issuer"),
-                audience: configuration.GetValue<string>("JwtSettings:Audience"),
+                issuer: _configuration.GetValue<string>("JwtSettings:Issuer"),
+                audience: _configuration.GetValue<string>("JwtSettings:Audience"),
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(configuration.GetValue<int>("JwtSettings:AccessTokenExpires")),
+                expires: DateTime.UtcNow.AddMinutes(_configuration.GetValue<int>("JwtSettings:AccessTokenExpires")),
                 signingCredentials: creds
             );
 

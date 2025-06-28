@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 namespace AuthWebApi.Extensions;
 public static class JwtExtension
 {
-    public static void AddJwtExtension(this IServiceCollection serCollection)
+    public static void AddJwtAuthorization(this IServiceCollection serCollection)
     {
         IConfigurationRoot configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
@@ -35,7 +36,8 @@ public static class JwtExtension
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = configuration.GetSection("JwtSettings").GetValue<string>("Issuer") ?? "",
                 ValidAudience = configuration.GetSection("JwtSettings").GetValue<string>("Audience") ?? "",
-                IssuerSigningKey = new SymmetricSecurityKey(keyInBytes)
+                IssuerSigningKey = new SymmetricSecurityKey(keyInBytes),
+                RoleClaimType = ClaimTypes.Role,
             };
         });
     }

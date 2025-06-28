@@ -40,18 +40,18 @@ namespace AuthWebApi.Controllers
         }
 
         [Authorize]
-        [HttpGet]
+        [HttpGet("auth-only")]
         public ActionResult<string> AuthenticatedOnlyEndpoint()
         {
             // This endpoint is protected and requires authentication
             return Ok("You are authenticated!");
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpGet("admin-only")]
+        [Authorize(Roles = "Admin,Manager")]
+        [HttpGet("admin-manager")]
         public ActionResult<string> AdminOnlyEndpoint()
         {
-            return Ok("You are and admin!");
+            return Ok("You could be an admin Or manager");
         }
     }
 }

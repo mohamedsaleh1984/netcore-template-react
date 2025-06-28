@@ -15,7 +15,7 @@ const Login: React.FC = () => {
         console.log(response.id);
         console.log(response.passwordHash);
         console.log(response.role);
-        console.log(response.username);
+        console.log(response.userName);
         TokenUtil.setRefreshToken(response.refreshToken!)
         
     }

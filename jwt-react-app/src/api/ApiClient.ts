@@ -187,7 +187,7 @@ export class ApiClient extends BaseClient implements IApiClient {
     }
 
     auth_AuthenticatedOnlyEndpoint(): Promise<string> {
-        let url_ = this.baseUrl + "/api/Auth";
+        let url_ = this.baseUrl + "/api/Auth/auth-only";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -222,7 +222,7 @@ export class ApiClient extends BaseClient implements IApiClient {
     }
 
     auth_AdminOnlyEndpoint(): Promise<string> {
-        let url_ = this.baseUrl + "/api/Auth/admin-only";
+        let url_ = this.baseUrl + "/api/Auth/admin-manager";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -257,10 +257,45 @@ export class ApiClient extends BaseClient implements IApiClient {
     }
 }
 
-export interface User {
-    id: string;
-    username: string;
-    passwordHash: string;
+/** Represents a user in the identity system */
+export interface IdentityUserOfString {
+    /** Gets or sets the primary key for this user. */
+    id?: string | undefined;
+    /** Gets or sets the user name for this user. */
+    userName?: string | undefined;
+    /** Gets or sets the normalized user name for this user. */
+    normalizedUserName?: string | undefined;
+    /** Gets or sets the email address for this user. */
+    email?: string | undefined;
+    /** Gets or sets the normalized email address for this user. */
+    normalizedEmail?: string | undefined;
+    /** Gets or sets a flag indicating if a user has confirmed their email address. */
+    emailConfirmed: boolean;
+    /** Gets or sets a salted and hashed representation of the password for this user. */
+    passwordHash?: string | undefined;
+    /** A random value that must change whenever a users credentials change (password changed, login removed) */
+    securityStamp?: string | undefined;
+    /** A random value that must change whenever a user is persisted to the store */
+    concurrencyStamp?: string | undefined;
+    /** Gets or sets a telephone number for the user. */
+    phoneNumber?: string | undefined;
+    /** Gets or sets a flag indicating if a user has confirmed their telephone address. */
+    phoneNumberConfirmed: boolean;
+    /** Gets or sets a flag indicating if two factor authentication is enabled for this user. */
+    twoFactorEnabled: boolean;
+    /** Gets or sets the date and time, in UTC, when any user lockout ends. */
+    lockoutEnd?: Date | undefined;
+    /** Gets or sets a flag indicating if the user could be locked out. */
+    lockoutEnabled: boolean;
+    /** Gets or sets the number of failed login attempts for the current user. */
+    accessFailedCount: number;
+}
+
+/** The default implementation of IdentityUser`1 which uses a string as a primary key. */
+export interface IdentityUser extends IdentityUserOfString {
+}
+
+export interface User extends IdentityUser {
     role: string;
     refreshToken?: string | undefined;
     refreshTokenExpiryTime?: Date | undefined;
