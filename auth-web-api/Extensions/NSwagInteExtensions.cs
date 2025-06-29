@@ -20,12 +20,12 @@ namespace AuthWebApi.Extensions
             {
                 doc.AddSecurity("Bearer", new OpenApiSecurityScheme()
                 {
-                    Name = "Authorization",
-                    Type = OpenApiSecuritySchemeType.ApiKey,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
                     In = OpenApiSecurityApiKeyLocation.Header,
-                    Description = "JWT Authorization Header using the Bearer schema."
+                    Description = "JWT Authorization Header using the Bearer schema.",
+                    Type = OpenApiSecuritySchemeType.Http,
+                    Name = "Authorization",
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer",
                 });
                 doc.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("Bearer"));
             });

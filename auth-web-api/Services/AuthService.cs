@@ -15,14 +15,16 @@ namespace AuthWebApi.Services
     public class AuthService : IAuthService
     {
         private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
 
-        public AuthService(ApplicationDbContext context, IConfiguration configuration, UserManager<User> userManager)
+        public AuthService(ApplicationDbContext context, IConfiguration configuration, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
             _userManager = userManager;
             _configuration = configuration;
+            _roleManager = roleManager;
         }
 
         public async Task<TokenResponseDto?> LoginAsync(UserDto request)
@@ -76,7 +78,7 @@ namespace AuthWebApi.Services
 
             user.UserName = request.Username;
             user.PasswordHash = hashedPassword;
-            user.Role = roleName;
+            user.SecurityStamp = Guid.NewGuid().ToString();
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();

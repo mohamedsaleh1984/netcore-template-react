@@ -8,16 +8,8 @@ using Scalar.AspNetCore;
 
 const string ALLOW_DEVELOPMENT_CORS_ORIGINS_POLICY = "AllowDevelopmentSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-builder.Services.AddHttpLogging(x => { });
-builder.Services.AddJwtAuthorization();
-builder.Services.AddControllers();
+
 builder.Services.AddSqlServer<ApplicationDbContext>(builder.Configuration.GetValue<string>("ConnectionStrings:DefaultConnection"));
-builder.Logging.AddConsole();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddSwagger();
-builder.Services.AddCorsExtension();
 // Role-Based
 // Add identity services with roles
 builder.Services.AddIdentity<User, IdentityRole>(options =>
@@ -39,18 +31,23 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     options.User.AllowedUserNameCharacters =
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
     options.User.RequireUniqueEmail = false;
-}).AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders();
+}).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+
+// Adding Authenication
+builder.Services.AddJwtAuthorization();
 
 // Roles
 builder.Services.AddAuthorization();
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
-//    options.AddPolicy("RequireManagerRole", policy => policy.RequireRole("Manager"));
-//    options.AddPolicy("RequireUserRole", policy => policy.RequireRole("User"));
-//});
 
+builder.Services.AddOpenApi();
+builder.Services.AddHttpLogging(x => { });
+
+builder.Services.AddControllers();
+
+builder.Logging.AddConsole();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSwagger();
+builder.Services.AddCorsExtension();
 
 
 var app = builder.Build();
