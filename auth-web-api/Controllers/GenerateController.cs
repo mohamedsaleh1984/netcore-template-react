@@ -22,11 +22,13 @@ namespace AuthWebApi.Controllers
             for (int i = 0; i < 10; i++)
             {
                 UserDto user = new UserDto();
-                user.Username = "".GetRandomString(5, 8) + "@hotmail.com";
+                string strUserEmailAddress = "".GetRandomString(5, 8) + "@hotmail.com";
+
+                user.Username = strUserEmailAddress;
                 user.Password = password;
+
                 await auth.RegisterAsync(user);
             }
-
 
             return Ok("Created");
         }
