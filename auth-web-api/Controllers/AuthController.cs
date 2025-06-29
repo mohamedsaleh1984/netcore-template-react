@@ -9,6 +9,7 @@ namespace AuthWebApi.Controllers
     [ApiController]
     public class AuthController(IAuthService authService) : ControllerBase
     {
+
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(UserDto request)
         {

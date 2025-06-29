@@ -8,7 +8,7 @@ namespace AuthWebApi.Services
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            string[] roleNames = { "Admin", "Manager", "User" };
+            string[] roleNames = { "Admin", "Manager", "User", "Supervisor", "Postman", "Bartender" };
             try
             {
                 foreach (var roleName in roleNames)

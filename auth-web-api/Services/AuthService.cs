@@ -68,11 +68,6 @@ namespace AuthWebApi.Services
                 return null;
             }
 
-            string[] roles = ["Admin", "Manager", "User"];
-            // Add Role
-            int roleIndex = new Random().Next(0, 3);
-            string roleName = roles[roleIndex];
-
             var user = new User();
             var hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
 
@@ -85,14 +80,43 @@ namespace AuthWebApi.Services
             int save_result = await _context.SaveChangesAsync();
             if (save_result > 0)
             {
-                var role_result = await _userManager.AddToRoleAsync(user, roleName);
-                if (!role_result.Succeeded)
+                var role_result = await AssignRandomRoles(user);
+                if (!role_result)
                 {
                     return null;
                 }
             }
 
             return user;
+        }
+
+        public async Task<bool> AssignRandomRoles(User user)
+        {
+            string[] roles = ["Admin", "Manager", "User", "Supervisor", "Postman", "Bartender"];
+            List<string> roles_to_assign = new List<string>();
+
+            // assign two random roles
+            while (roles_to_assign.Count() < 2)
+            {
+                // Add Role
+                int roleIndex = new Random().Next(0, roles.Length - 1);
+                string roleName = roles[roleIndex];
+
+                if (!roles_to_assign.Contains(roleName))
+                {
+                    roles_to_assign.Add(roleName);
+                }
+            }
+
+
+            List<bool> res = new List<bool>();
+            for (int i = 0; i < roles_to_assign.Count(); i++)
+            {
+                var role_result = await _userManager.AddToRoleAsync(user, roles_to_assign[i]);
+                res.Add(role_result.Succeeded ? true : false);
+            }
+
+            return res.All(x => x == true);
         }
 
         public async Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto request)
