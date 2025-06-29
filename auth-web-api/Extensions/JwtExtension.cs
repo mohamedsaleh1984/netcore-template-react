@@ -5,7 +5,7 @@ using System.Text;
 namespace AuthWebApi.Extensions;
 public static class JwtExtension
 {
-    public static void AddJwtAuthorization(this IServiceCollection serCollection)
+    public static void AddJwtAuthorization(this IServiceCollection collection)
     {
         IConfigurationRoot configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
@@ -20,7 +20,7 @@ public static class JwtExtension
 
         var keyInBytes = Encoding.UTF8.GetBytes(jwtKey);
 
-        serCollection.AddAuthentication(options =>
+        collection.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;

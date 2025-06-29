@@ -22,7 +22,7 @@ namespace AuthWebApi.Extensions
                 {
                     In = OpenApiSecurityApiKeyLocation.Header,
                     Description = "JWT Authorization Header using the Bearer schema.",
-                    Type = OpenApiSecuritySchemeType.Http,
+                    Type = OpenApiSecuritySchemeType.ApiKey,
                     Name = "Authorization",
                     BearerFormat = "JWT",
                     Scheme = "Bearer",
@@ -55,6 +55,7 @@ namespace AuthWebApi.Extensions
 
             app.Use(CreatePath("/_/ts", GenerateTypeScriptClient));
         }
+
         private static async Task<string> GenerateTypeScriptClient(HttpContext context)
         {
             var document = await GetOpenApiDocument(context);
@@ -85,11 +86,13 @@ namespace AuthWebApi.Extensions
 
             return fileContent;
         }
+
         private static async Task<OpenApiDocument> GetOpenApiDocument(HttpContext context)
         {
             var url = context.Request.GetDisplayUrl().Replace(context.Request.Path, "/swagger/v1/swagger.json");
             return await OpenApiDocument.FromUrlAsync(url);
         }
+
         private static Func<HttpContext, Func<Task>, Task> CreatePath(string path, Func<HttpContext, Task<string>> response)
         {
             return async (context, next) =>

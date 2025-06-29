@@ -78,14 +78,19 @@ namespace AuthWebApi.Services
 
             user.UserName = request.Username;
             user.PasswordHash = hashedPassword;
+            user.Email = request.Username;
             user.SecurityStamp = Guid.NewGuid().ToString();
 
             _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            var result = await _userManager.AddToRoleAsync(user, roleName);
-            if (!result.Succeeded)
-                return null;
+            int save_result = await _context.SaveChangesAsync();
+            if (save_result > 0)
+            {
+                var role_result = await _userManager.AddToRoleAsync(user, roleName);
+                if (!role_result.Succeeded)
+                {
+                    return null;
+                }
+            }
 
             return user;
         }
